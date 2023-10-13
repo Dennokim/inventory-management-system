@@ -1,11 +1,21 @@
-import { Link } from '../components/common/Links'
-import Layout from '../components/layout'
+import { useRouter } from 'next/router';
+import React, { useEffect } from 'react';
+import { useAuthContext } from './context/AuthContext';
+import Layout from '../components/layout';
+import { Link } from '../components/common/Links';
 
 function Index() {
+  const { user } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user == null) router.push("/admin");
+  }, [user]);
+
   return (
     <header className="flex h-full flex-col items-center justify-center sm:max-lg:min-h-[85vh]">
-      <h1 className="mb-3 text-3xl font-bold">Ecommerce CMS</h1>
-      <p className="mb-2 text-sm text-gray-500">built with</p>
+      <h1>Ecommerce CMS</h1>
+      <p>built with</p>
       <div className="mb-2 flex max-w-[300px] items-center">
         <Link href={'https://nextjs.org/'} target={'_blank'}>
           Next.js
@@ -24,11 +34,11 @@ function Index() {
         </Link>
       </div>
     </header>
-  )
+  );
 }
-
-export default Index
 
 Index.getLayout = function getLayout(page) {
-  return <Layout>{page}</Layout>
-}
+  return <Layout>{page}</Layout>;
+};
+
+export default Index;
