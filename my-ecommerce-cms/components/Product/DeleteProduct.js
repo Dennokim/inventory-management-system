@@ -1,12 +1,25 @@
 import { Dialog, Transition } from '@headlessui/react'
 import React, { Fragment, useState } from 'react'
 import Button from '../common/Button'
+import firebase_app from '../../pages/firebase/config'
+import { getFirestore, deleteDoc, doc } from 'firebase/firestore'
+
+const db = getFirestore(firebase_app)
 
 const DeleteProduct = ({ productId }) => {
   const [isOpen, setIsOpen] = useState(false)
+
   const handleClose = () => setIsOpen(false)
   const handleOpen = () => setIsOpen(true)
-  const handleDelete = async () => console.log(productId)
+  const handleDelete = async () => {
+    try {
+      await deleteDoc(doc(db, 'products', productId))
+      console.log('Document successfully deleted!')
+      handleClose()
+    } catch (error) {
+      console.error('Error removing document: ', error)
+    }
+  }
 
   return (
     <>

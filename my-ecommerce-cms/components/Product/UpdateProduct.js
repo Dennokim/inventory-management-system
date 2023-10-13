@@ -3,15 +3,26 @@ import React, { Fragment, useState } from 'react'
 import Button from '../common/Button'
 import { Close } from '../common/icons/Close'
 import ProductForm from '../ProductForm'
+import firebase_app from '../../pages/firebase/config'
+import { getFirestore, updateDoc, doc } from 'firebase/firestore'
+
+const db = getFirestore(firebase_app)
 
 const UpdateProduct = ({ product, ...props }) => {
   const [isOpen, setIsOpen] = useState(false)
+
   const handleClose = () => setIsOpen(false)
   const handleOpen = () => setIsOpen(true)
 
   const onFormSubmit = async (data) => {
-    console.log(data)
-    handleClose()
+    try {
+      const productRef = doc(db, 'products', product.id)
+      await updateDoc(productRef, data)
+      console.log('Document successfully updated!')
+      handleClose()
+    } catch (error) {
+      console.error('Error updating document: ', error)
+    }
   }
 
   return (

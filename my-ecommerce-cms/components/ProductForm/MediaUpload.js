@@ -1,19 +1,33 @@
-import React, { useState } from 'react'
-import Button from '../common/Button'
+import React, { useState } from 'react';
+import Button from '../common/Button';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import firebase_app from '../../pages/firebase/config';
+
+const storage = getStorage(firebase_app);
 
 const MediaUpload = ({ defaultValues = [], setValue }) => {
-  const [imageSrc, setImageSrc] = useState([...defaultValues])
-  const [loading, setLoading] = useState(false)
-  const [uploadData, setUploadData] = useState()
+  const [imageSrc, setImageSrc] = useState([...defaultValues]);
+  const [loading, setLoading] = useState(false);
   const handleOnChange = (changeEvent) => {
-    const selectedFIles = []
-    const targetFiles = changeEvent.target.files
-    const targetFilesObject = [...targetFiles]
-    targetFilesObject.map((file) => {
-      return selectedFIles.push(URL.createObjectURL(file))
-    })
-    setImageSrc(selectedFIles)
-  }
+    const selectedFiles = changeEvent.target.files;
+    const selectedFilesArray = Array.from(selectedFiles);
+
+    selectedFilesArray.forEach(async (file) => {
+      const storageRef = ref(storage, `media/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      setLoading(true);
+
+      try {
+        const snapshot = await uploadTask;
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        setImageSrc(prevState => [...prevState, downloadURL]);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error uploading file: ", error);
+        setLoading(false);
+      }
+    });
+  };
 
   return (
     <form>
@@ -39,7 +53,7 @@ const MediaUpload = ({ defaultValues = [], setValue }) => {
             </div>
           ))}
         </div>
-        {imageSrc.length && !uploadData ? (
+        {imageSrc.length ? (
           <Button
             variant="text"
             className="w-full"
@@ -51,7 +65,7 @@ const MediaUpload = ({ defaultValues = [], setValue }) => {
         ) : null}
       </div>
     </form>
-  )
-}
+  );
+};
 
-export default MediaUpload
+export default MediaUpload;

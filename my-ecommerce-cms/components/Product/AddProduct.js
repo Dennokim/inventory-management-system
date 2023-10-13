@@ -3,13 +3,23 @@ import React, { Fragment, useState } from 'react'
 import Button from '../common/Button'
 import { Close } from '../common/icons/Close'
 import ProductForm from '../ProductForm'
+import firebase_app from '../../pages/firebase/config'
+import { getFirestore, addDoc, collection } from 'firebase/firestore'
+
+const db = getFirestore(firebase_app)
+const collectionRef = collection(db, 'products')
 
 const AddProduct = ({ props }) => {
   const [isOpen, setIsOpen] = useState(false)
   const handleClose = () => setIsOpen(false)
   const handleOpen = () => setIsOpen(true)
-  const onFormSubmit = (data) => {
-    console.log(data)
+  const onFormSubmit = async (data) => {
+    try {
+      const docRef = await addDoc(collectionRef, data)
+      console.log('Document written with ID: ', docRef.id)
+    } catch (e) {
+      console.error('Error adding document: ', e)
+    }
     handleClose()
   }
 
